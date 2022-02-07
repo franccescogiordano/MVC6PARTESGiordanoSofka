@@ -50,7 +50,7 @@
 
     self.BoardView.prototype = {
         clean:function(){
-            this.ctx.clearReact(0,0,this.board.width,this.board.height);
+            this.ctx.clearRect(0,0,this.board.width,this.board.height);
         },
         draw:function(){
             for (var i = this.board.elements.length - 1; i >= 0; i--){
@@ -88,6 +88,8 @@ document.addEventListener("keydown",function(ev){
         bar2.up();
     }else if(ev.keyCode == 83){//s
         bar2.down();
+    }else{
+        ev.preventDefault();
     }
 });
 
