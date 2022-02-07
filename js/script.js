@@ -11,12 +11,23 @@
     self.Board.prototype = {
         get elements(){
             var elements = this.bars;
-            //elements.push(this.ball);
+            elements.push(this.ball);
             return elements;
         }
     }
 })();
-
+(function(){
+self.Ball= function(x,y,radius,board){
+    this.x = x;
+    this.y = y;
+    this.radius = radius;
+    this.speed_y = 0
+    this.speed_x = 3
+    this.board = board;
+    board.ball=this;
+    this.kind="circle";
+}
+})();
 (function(){ //funcion para crear las barras
     self.Bar=function(x,y,width,height,board){
      this.x=x;
@@ -26,7 +37,7 @@
      this.board=board;
      this.board.bars.push(this); //accedo al board y al bars , luego lo envio
      this.kind="rectangle";
-     this.speed=10;
+     this.speed=15;
     }
 
     self.Bar.prototype={ //mover las barras
@@ -57,6 +68,10 @@
               var el = this.board.elements[i]; //buscamos elemento a dibujar
               draw(this.ctx,el)
             };
+       },
+       play: function(){
+        this.clean();
+        this.draw();
        }
    }
    
@@ -66,6 +81,12 @@
                 case "rectangle":
                ctx.fillRect(element.x,element.y,element.width,element.height);  
                 break;
+                case "circle":
+                    ctx.beginPath();
+                    ctx.arc(element.x,element.y,element.radius,0,7);
+                    ctx.fill();
+                    ctx.closePath();
+                    break;
             }
      //   } 
     }
@@ -75,7 +96,7 @@
     var bar2 = new Bar(740,100,40,100,board);
     var canvas= document.getElementById('canvas',board);
     var board_view= new BoardView(canvas,board);
-    
+    var ball= new Ball(350,180,10,board);
    
     
 document.addEventListener("keydown",function(ev){
@@ -96,8 +117,7 @@ document.addEventListener("keydown",function(ev){
 window.requestAnimationFrame(controller);
 
 function controller(){
-    board_view.clean();
-    board_view.draw();
+    board_view.play();
     window.requestAnimationFrame(controller);
 
 }
