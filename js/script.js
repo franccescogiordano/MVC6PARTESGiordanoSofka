@@ -1,5 +1,5 @@
 (function(){
-    self.Board = function(width,height){ //OBJETO ESCENARIO
+    self.Board = function(width,height){ //ObJETO ESCENARIO
         this.width = width;
         this.height = height;
         this.playing = false;
@@ -19,7 +19,7 @@
 })();
 //-------------------------PELOTA--------------------------------
 (function(){
-self.Ball= function(x,y,radius,board){ //OBJETO PELOTA
+self.ball= function(x,y,radius,board){ //ObJETO PELOTA
     this.x = x;
     this.y = y;
     this.radius = radius;
@@ -28,26 +28,50 @@ self.Ball= function(x,y,radius,board){ //OBJETO PELOTA
     this.board = board;
     board.ball=this;
     this.kind="circle";
-
+    this.bounce_angle=0;
+    this.max_bounce_angle=Math.PI / 12;
+    this.speed=3;
 
 
 }
-self.Ball.prototype = { //PROTOTIPO PELOTA
+self.ball.prototype = { //PROTOTIPO PELOTA
     move: function(){
-        this.x +=(this.speed_y * this.direction);
-        this.y +=(this.speed_x * this.direction);
-    }
+        this.x +=(this.speed_x * this.direction);
+        this.y +=(this.speed_y);
+    },
+    get width(){
+        return  this.radius*2;
+    },
+    get height(){
+        return  this.radius*2;
+    },
+    collision: function(bar){//REACCIONA AL CHOQUE CON LA bARRA 
+        var relative_intersect_y= ( bar.y + (bar.height/2) ) -this.y;
+
+        var normalized_intersect_y= relative_intersect_y / (bar.height / 2);
+
+        this.bounce_angle=  normalized_intersect_y*this.max_bounce_angle;
+
+        this.speed_y=this.speed*-Math.sin(this.bounce_angle);
+
+        this.speed_x=this.speed*Math.cos(this.bounce_angle);
+
+        if(this.x>(this.board.width/2))this.direction=-1;
+
+        else this.direction=1;
+        }
 }
 })();
 //-------------------------PELOTA FIN--------------------------------
 
-//-------------------------BARRAS------------------------------------
+//-------------------------bARRAS------------------------------------
 (function(){ //funcion para crear las barras
-    self.Bar=function(x,y,width,height,board){ //OBJETO BARRAS
+    self.Bar=function(x,y,width,height,board){ //ObJETO bARRAS
      this.x=x;
      this.y=y;
      this.width=width;
      this.height=height;
+     this.fillStyle = '#c81d11';
      this.board=board;
      this.board.bars.push(this); //accedo al board y al bars , luego lo envio
      this.kind="rectangle";
@@ -63,7 +87,7 @@ self.Ball.prototype = { //PROTOTIPO PELOTA
         }
     }
     })();
-//-------------------------BARRAS FIN------------------------------------
+//-------------------------bARRAS FIN------------------------------------
 
 //-------------------------ESCENARIO------------------------------------
 (function(){
@@ -75,7 +99,7 @@ self.Ball.prototype = { //PROTOTIPO PELOTA
         this.ctx=canvas.getContext("2d");
     }
 
-    self.BoardView.prototype = { //BOARD PROTOTIPO
+    self.BoardView.prototype = { //bOARD PROTOTIPO
         clean:function(){
             this.ctx.clearRect(0,0,this.board.width,this.board.height);
         },
@@ -85,22 +109,68 @@ self.Ball.prototype = { //PROTOTIPO PELOTA
               draw(this.ctx,el)
             };
        },
+       checko_collisions: function(){
+           console.log("CHECKEO");
+        for (var i = this.board.bars.length - 1; i >= 0; i--){
+           var bar = this.board.bars[i];
+         if(hit(bar,this.board.ball)){
+            this.board.ball.collision(bar);
+         }
+          };
+       },
        play: function(){
     if(this.board.playing){
         this.clean();
         this.draw();
+        this.checko_collisions();
         this.board.ball.move();
     }
   }
    }
 //-------------------------ESCENARIO FIN------------------------------------   
 
-//-------------------------DIBUJOS------------------------------------
+function hit(paleta,pelota){ //CATALOGA DOS ObJETOS DE TAL FORMA QUE SE SAbE SI ESTOS COLISIONAN 
+    var hit = false;
+
+    //console.log(a);
+    //derecha
+   if(pelota.y >= this.board.height - pelota.radius){
+        hit=true;
+    //console.log(puntaje1);
+    }
+    if(pelota.y < pelota.radius){
+        hit=true;
+    //console.log(puntaje1);
+    }
+   // if(pelota.y <= radio) dy = velocidad;
+//else if(pelota.y >= h - radio) dy = -velocidad;
+    if(pelota.x + pelota.width >= paleta.x && pelota.x < paleta.x + paleta.width)
+    {
+        if(pelota.y +pelota.height >= paleta.y && pelota.y < paleta.y + paleta.height)
+        hit = true;
+    }
+    if(pelota.x <= paleta.x && pelota.x + pelota.width >= paleta.x + paleta.width)
+    {
+        if(pelota.y <= paleta.y && pelota.y + pelota.height >= paleta.y + paleta.height){
+            hit = true;
+        }
+    }//a
+    if(paleta.x <= pelota.x && paleta.x + paleta.width >= pelota.x + pelota.width)
+    {
+        if(paleta.y <= pelota.y && paleta.y + paleta.height >= pelota.y + pelota.height){
+            hit = true;
+        }
+    }
+    return hit;
+}
+
+//-------------------------DIbUJOS------------------------------------
    function draw(ctx,element){
-       // if(element !== null && element.hasOwnProperty("kind")){
+
             switch(element.kind){
                 case "rectangle":
                ctx.fillRect(element.x,element.y,element.width,element.height);  
+               ctx.fillStyle = "#ffffff";
                 break;
                 case "circle":
                     ctx.beginPath();
@@ -109,17 +179,17 @@ self.Ball.prototype = { //PROTOTIPO PELOTA
                     ctx.closePath();
                     break;
             }
-     //   } 
+
     }
     })();
 
-    //CREACION E INSTANCIA DE OBJETOS
+    //CREACION E INSTANCIA DE ObJETOS
     var board = new Board (800,400);
     var bar = new Bar(20,100,40,100,board);
     var bar2 = new Bar(740,100,40,100,board);
     var canvas= document.getElementById('canvas',board);
     var board_view= new BoardView(canvas,board);
-    var ball= new Ball(350,180,10,board);
+    var ball= new ball(350,180,10,board);
    
     
 document.addEventListener("keydown",function(ev){
