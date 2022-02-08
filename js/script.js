@@ -7,6 +7,11 @@
         this.bars = [];
         this.ball = null;
         this.playing= false;
+        this.endgame=false;
+        this.puntajeganador=10;
+        this.player1pts=0;
+        this.player2pts=0;
+        this.yasumepuntos=false;
     }
 
     self.Board.prototype = { //PROTOTIPO ESCENARIO
@@ -111,39 +116,75 @@ self.ball.prototype = { //PROTOTIPO PELOTA
        },
        checko_collisions: function(){
            console.log("CHECKEO");
+        let player1ptsactuales=this.board.player1pts; // CASO BASE TIENE 0 PUNTOS, GUARDO LOS PUNTOS ACTUALES
+        let player2ptsactuales=this.board.player2pts;//CASO BASE TIENE 0 PUNTOS, GUARDO LOS PUNTOS ACTUALES
+
         for (var i = this.board.bars.length - 1; i >= 0; i--){
+       //     player1ptsactuales=this.board.player1pts;
+         //   player2ptsactuales=this.board.player2pts;
            var bar = this.board.bars[i];
          if(hit(bar,this.board.ball)){
+            if(player1ptsactuales!==this.board.player1pts || player2ptsactuales!==this.board.player2pts ){
+                this.board.yasumepuntos=true;
+            }
             this.board.ball.collision(bar);
-         }
+        }
           };
+          this.board.yasumepuntos=false;
        },
+    verificarestadojuego: function(){
+        if(this.board.endgame){ //SI UN JUGADOR ANOTA
+        if(this.board.player1pts >= this.board.puntajeganador || this.board.player2pts >= this.board.puntajeganador){ //SI SE LLEGO AL MAXIMO DE PUNTOS
+        reset(true);
+        return;
+      }
+      reset(false);
+    }
+    },
        play: function(){
     if(this.board.playing){
         this.clean();
         this.draw();
         this.checko_collisions();
-        this.board.ball.move();
+        this.verificarestadojuego();
+     //------------------VERIFICACION PARA QUE LAS PALETAS NO SALGAN DEL TABLERO-----------------  /*|*/
+   /*|*/if (bar.y <= 1) bar.y = 1;                                                                 /*|*/
+   /*|*/ else if (bar.y >= this.board.height - bar.height) bar.y = this.board.height - bar.height; /*|*/
+    /*|*/if (bar2.y <= 1) bar2.y = 1;                                                              /*|*/
+    /*|*/else if (bar2.y >= this.board.height - bar2.height) bar2.y= this.board.height - bar2.height - 1;/*|*/
+     /*|*/   this.board.ball.move();                                                                     /*|*/    
+    //--------------------------------------------------------------------------------------------------------
+    document.querySelector('#jugador1').innerHTML = this.board.player1pts;
+    document.querySelector('#jugador2').innerHTML = this.board.player2pts;
     }
   }
    }
 //-------------------------ESCENARIO FIN------------------------------------   
 
-function hit(paleta,pelota){ //CATALOGA DOS ObJETOS DE TAL FORMA QUE SE SAbE SI ESTOS COLISIONAN 
+function hit(paleta,pelota){ //CATALOGA DOS ObJETOS DE TAL FORMA QUE SE SABE SI ESTOS COLISIONAN 
     var hit = false;
+    let velocidad=3;
+    if(pelota.x >= this.board.width - pelota.radius){
+        this.board.endgame = true;
+        if(!this.board.yasumepuntos){
+        this.board.player1pts++;
+        }
+        }
 
-    //console.log(a);
-    //derecha
-   if(pelota.y >= this.board.height - pelota.radius){
-        hit=true;
-    //console.log(puntaje1);
-    }
-    if(pelota.y < pelota.radius){
-        hit=true;
-    //console.log(puntaje1);
-    }
-   // if(pelota.y <= radio) dy = velocidad;
-//else if(pelota.y >= h - radio) dy = -velocidad;
+        if(pelota.x <= pelota.radius){
+            this.board.endgame = true;
+
+            if(!this.board.yasumepuntos){
+            this.board.player2pts++;     
+            }   
+        }
+ 
+
+    if(pelota.y <= pelota.radius) pelota.speed_x = 3;
+else if(pelota.y >= this.board.height - pelota.radius) pelota.speed_y = -3;
+
+
+
     if(pelota.x + pelota.width >= paleta.x && pelota.x < paleta.x + paleta.width)
     {
         if(pelota.y +pelota.height >= paleta.y && pelota.y < paleta.y + paleta.height)
@@ -159,6 +200,7 @@ function hit(paleta,pelota){ //CATALOGA DOS ObJETOS DE TAL FORMA QUE SE SAbE SI 
     {
         if(paleta.y <= pelota.y && paleta.y + paleta.height >= pelota.y + pelota.height){
             hit = true;
+            
         }
     }
     return hit;
@@ -182,7 +224,40 @@ function hit(paleta,pelota){ //CATALOGA DOS ObJETOS DE TAL FORMA QUE SE SAbE SI 
 
     }
     })();
+//--------------------------RESETEO------------------------------------------------------------
 
+//this.board.height ancho this.board.width alto
+function reset (hard){
+    pelotax = (this.board.width / 2); 
+    pelotay = (this.board.height / 2 );
+    ball.speed_y = 0;
+    ball.speed_x = 3;
+    ball.x=350;
+    ball.y=180;
+    bar.x = 20;
+    bar.y = (this.board.height / 2) - ( bar.height/ 2); 
+    bar2.x = (this.board.width - bar2.width - 20);
+    bar2.y = (this.board.height / 2) - (bar2.height / 2);
+    this.board.endgame = false;    
+    if (hard)
+    {     
+      bar.x = 20;
+      bar.y = (this.board.height / 2) - ( bar.height/ 2);
+ 
+      bar2.x = (this.board.width - bar2.width - 20);
+      bar2.y = (this.board.height / 2) - (bar2.height / 2);
+
+    if(this.board.player1pts >= this.board.puntajeganador){
+    //texto.innerHTML="Ganador: Jugador 1"
+    console.log("GANADOR 1");
+    }else{
+//texto.innerHTML="Ganador: Jugador 2"
+        console.log("GANADOR 2");
+    }
+    this.board.endgame = true;
+    }
+}
+//--------------------------------------------------------------------------------------------
     //CREACION E INSTANCIA DE ObJETOS
     var board = new Board (800,400);
     var bar = new Bar(20,100,40,100,board);
@@ -196,16 +271,16 @@ document.addEventListener("keydown",function(ev){
 
     if(ev.keyCode == 38){
         ev.preventDefault();
-        bar.up();
+        bar2.up();
     }else if(ev.keyCode == 40){
         ev.preventDefault();
-        bar.down();
-    }else if(ev.keyCode == 87){//w
+        bar2.down();
+    }else if(ev.keyCode == 87){//this.board.width
         ev.preventDefault();
-        bar2.up();
+        bar.up();
     }else if(ev.keyCode == 83){//s
         ev.preventDefault();
-        bar2.down();
+        bar.down();
     }else if(ev.keyCode == 32){//PAUSA CON SPACE
        ev.preventDefault();
        board.playing=!board.playing;
