@@ -1,0 +1,30 @@
+canvas{
+    border:solid;
+    display: block;
+    background: rgb(51, 255, 0);
+}
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    min-height: 100vh;    
+    font-family: sans-serif;
+}
+*, * > * {
+    padding: 0;
+    margin: 0;
+}
+.scores {
+    width: 480px;
+    display: flex;
+    justify-content: space-around;
+    gap: 2em;
+    margin-bottom: -90px;
+    z-index: 2;
+  }
+  
+  .player{
+    color: #fff;
+    font-size: 5em;
+  }
