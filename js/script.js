@@ -1,5 +1,7 @@
+const texto = document.getElementById('ganadortag');
+
 (function () {
-    self.Board = function (width, height) { //ObJETO ESCENARIO
+    self.Board = function (width, height) { //OBJETO ESCENARIO
         this.width = width;
         this.height = height;
         this.playing = false;
@@ -24,7 +26,7 @@
 })();
 //-------------------------PELOTA--------------------------------
 (function () {
-    self.ball = function (x, y, radius, board) { //ObJETO PELOTA
+    self.ball = function (x, y, radius, board) { //OBJETO PELOTA
         this.x = x;
         this.y = y;
         this.radius = radius;
@@ -50,7 +52,7 @@
         get height() {
             return this.radius * 2;
         },
-        collision: function (bar) {//REACCIONA AL CHOQUE CON LA bARRA 
+        collision: function (bar) {//REACCIONA AL CHOQUE CON LA BARRA 
             var relative_intersect_y = (bar.y + (bar.height / 2)) - this.y;
 
             var normalized_intersect_y = relative_intersect_y / (bar.height / 2);
@@ -69,9 +71,9 @@
 })();
 //-------------------------PELOTA FIN--------------------------------
 
-//-------------------------bARRAS------------------------------------
+//-------------------------BARRAS------------------------------------
 (function () { //funcion para crear las barras
-    self.Bar = function (x, y, width, height, board) { //ObJETO bARRAS
+    self.Bar = function (x, y, width, height, board) { //OBJETO bARRAS
         this.x = x;
         this.y = y;
         this.width = width;
@@ -92,7 +94,7 @@
         }
     }
 })();
-//-------------------------bARRAS FIN------------------------------------
+//-------------------------BARRAS FIN------------------------------------
 
 //-------------------------ESCENARIO------------------------------------
 (function () {
@@ -104,7 +106,7 @@
         this.ctx = canvas.getContext("2d");
     }
 
-    self.BoardView.prototype = { //bOARD PROTOTIPO
+    self.BoardView.prototype = { //BOARD PROTOTIPO
         clean: function () {
             this.ctx.clearRect(0, 0, this.board.width, this.board.height);
         },
@@ -195,19 +197,20 @@
         return hit;
     }
 
-    //-------------------------DIbUJOS------------------------------------
+    //-------------------------DIBUJOS------------------------------------
     function draw(ctx, element) {
 
         switch (element.kind) {
             case "rectangle":
                 ctx.fillRect(element.x, element.y, element.width, element.height);
-                ctx.fillStyle = "#ffffff";
+                ctx.fillStyle = "#ff002b";
                 break;
             case "circle":
                 ctx.beginPath();
                 ctx.arc(element.x, element.y, element.radius, 0, 7);
                 ctx.fill();
                 ctx.closePath();
+                ctx.fillStyle = "#003cff";
                 break;
         }
 
@@ -236,11 +239,11 @@ function reset(hard) {
         bar2.y = (this.board.height / 2) - (bar2.height / 2);
 
         if (this.board.player1pts >= this.board.puntajeganador) {
-            //texto.innerHTML="Ganador: Jugador 1"
-            console.log("GANADOR 1");
+            texto.innerHTML="Ganador: Jugador 1, recargue la pagina para volver a jugar"
+           
         } else {
-            //texto.innerHTML="Ganador: Jugador 2"
-            console.log("GANADOR 2");
+            texto.innerHTML="Ganador: Jugador 2, recargue la pagina para volver a jugar"
+            
         }
         this.board.endgame = true;
     }
@@ -248,8 +251,8 @@ function reset(hard) {
 //--------------------------------------------------------------------------------------------
 //CREACION E INSTANCIA DE ObJETOS
 var board = new Board(800, 400);
-var bar = new Bar(20, 100, 40, 100, board);
-var bar2 = new Bar(740, 100, 40, 100, board);
+var bar = new Bar(20, 100, 20, 100, board);
+var bar2 = new Bar(740, 100, 20, 100, board);
 var canvas = document.getElementById('canvas', board);
 var board_view = new BoardView(canvas, board);
 var ball = new ball(350, 180, 10, board);
@@ -276,12 +279,13 @@ document.addEventListener("keydown", function (ev) {
 });
 
 
-
+if(!this.board.endgame){
 window.requestAnimationFrame(controller);
 board_view.draw();
 setTimeout(function () {
     ball.direction = -1;
 });
+}
 function controller() {
     board_view.play();
     window.requestAnimationFrame(controller);
